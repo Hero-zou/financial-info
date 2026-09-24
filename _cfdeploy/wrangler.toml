@@ -1,0 +1,9 @@
+name = "financial-info"
+compatibility_date = "2024-09-23"
+
+# 记溯项目教训（2026-09-10，勿犯）：
+# 1. CF Pages 走 GitHub 集成时会优先读 pages_build_output_dir 字段并忽略 Dashboard 的
+#    Root directory 设置，且 "." 可能被解释为仓库根 → 整个仓库被当站点上传。
+#    所以本文件【永远不要加回】pages_build_output_dir，Root directory 由 Dashboard 填 _cfdeploy。
+# 2. workers.dev（Workers 项目）在大陆被墙；pages.dev（Pages 项目）可直访。
+#    本项目 2026-09-24 曾误走 Workers Builds 流程，后改回经典 Pages（functions/ + 本文件极简配置）。

@@ -1,0 +1,1304 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>可买标的 · 强度排序（按板块）</title>
+<style>
+:root{--void:#08090a;--carbon:#0f1011;--graphite:#23252a;--lime:#e4f222;--dim:#8a8f98;--red:#eb5757;--green:#27a644;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:#e6e8ea;font-family:-apple-system,'Inter',system-ui,'Segoe UI',sans-serif;font-size:13px;line-height:1.5;padding:28px 20px 60px}
+.wrap{max-width:1080px;margin:0 auto}
+h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+h1 .ac{color:var(--lime)}
+.sub{color:var(--dim);font-size:12px;margin:6px 0 18px}
+.card{background:var(--carbon);border:1px solid var(--graphite);border-radius:12px;padding:18px 20px;margin:14px 0}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.kpi{flex:1;min-width:140px;background:var(--carbon);border:1px solid var(--graphite);border-radius:12px;padding:14px 16px}
+.kpi .k{color:var(--dim);font-size:11px}
+.kpi .v{font-size:24px;font-weight:800;margin-top:4px}
+.kpi .v.lime{color:var(--lime)}
+.box-title{font-size:13px;font-weight:700;color:#cfd2d6;margin:4px 0 10px;display:flex;align-items:center;gap:8px}
+.box-title::before{content:'';width:8px;height:8px;border-radius:2px;background:var(--lime)}
+.pick-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+.pick-list li{padding:6px 0;border-bottom:1px dashed var(--graphite);font-size:12.5px}
+.cd{color:var(--dim);font-size:11px;margin-left:4px}
+table{width:100%;border-collapse:collapse;margin-top:4px}
+.tbl th{padding:8px 8px;font-size:11px;color:var(--dim);font-weight:600;text-align:left;border-bottom:1px solid var(--graphite);position:sticky;top:0;background:var(--carbon)}
+.tbl th.num,.tbl td.num{text-align:right}
+.tbl td{padding:7px 8px;border-top:1px solid var(--graphite);font-size:12.5px;vertical-align:middle}
+.rk{color:var(--dim);width:30px;text-align:right;font-variant-numeric:tabular-nums}
+.rk2{font-size:11px;font-weight:700;white-space:nowrap}
+.nm{font-weight:600}
+.nm .cd{display:inline-block;margin-left:5px}
+.wt{background:var(--lime);color:#08090a;border-radius:4px;font-size:10px;font-weight:700;padding:1px 5px;margin-left:6px}
+.st{background:#2b1414;color:#eb5757;border:1px solid #eb5757;border-radius:4px;font-size:10px;font-weight:700;padding:1px 5px;margin-left:6px}
+.pk{background:#1d2b00;color:var(--lime);border:1px solid var(--lime);border-radius:4px;font-size:10px;font-weight:700;padding:1px 5px;margin-left:6px}
+.ch{background:#2b1414;color:var(--red);border-radius:4px;font-size:10px;padding:1px 5px;margin-left:6px}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.flags{white-space:nowrap}
+.flags .f{display:inline-block;background:#16181b;border:1px solid var(--graphite);border-radius:4px;font-size:10.5px;color:#b9bdc4;padding:1px 6px;margin:1px 3px 1px 0}
+tr.pick td{background:#10130b}
+.grp{margin:16px 0;background:var(--carbon);border:1px solid var(--graphite);border-radius:12px;overflow:hidden}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;padding:11px 16px;background:#121417;border-bottom:1px solid var(--graphite)}
+.gname{font-weight:800;font-size:14px}
+.gname::before{content:'▍';color:var(--lime);margin-right:6px}
+.gmeta{color:var(--dim);font-size:11.5px}
+.legend{color:var(--dim);font-size:11.5px;margin:10px 0;display:flex;gap:16px;flex-wrap:wrap}
+.legend b{color:#cfd2d6}
+.note{color:var(--dim);font-size:11.5px;margin-top:14px;line-height:1.7;border-top:1px solid var(--graphite);padding-top:12px}
+.note b{color:#cfd2d6}
+</style></head><body><div class="wrap">
+<h1>中期趋势持有 · <span class="ac">强度排序</span>（按板块）</h1>
+<div class="sub">鳄鱼派 5 日线战法 · 数据时点 2026-09-23（盘中）· 生成 2026/9/24 11:10:59 · 红涨绿跌 · <b style="color:#e0a23a">已排除科创板(sh688)与北证(bj)</b> · <b style="color:#eb5757">已暴涨·过度延伸(离60线&gt;60%)已隔离不计入排序</b></div>
+
+<div class="kpis">
+  <div class="kpi"><div class="k">中期持有候选</div><div class="v">65</div></div>
+  <div class="kpi"><div class="k">覆盖板块</div><div class="v">33</div></div>
+  <div class="kpi"><div class="k">★优先（中期持有级）</div><div class="v lime">14</div></div>
+  <div class="kpi"><div class="k">已暴涨隔离·不追</div><div class="v" style="color:#eb5757">20</div></div>
+</div>
+
+
+<div class="card" style="border-color:#3a2f00">
+  <div class="box-title" style="color:#e4f222">5日线战法 · 持有健康率（正确口径）</div>
+  <div class="kpis">
+    <div class="kpi"><div class="k">持有健康率（没破5日线）</div><div class="v lime">92.3%</div></div>
+    <div class="kpi"><div class="k">跌破5日线（战法卖出）</div><div class="v" style="color:#eb5757">5 只</div></div>
+    <div class="kpi"><div class="k">真实均涨跌(9-22→今)</div><div class="v" style="color:#eb5757">+1.62%</div></div>
+    <div class="kpi"><div class="k">强趋势子集健康率</div><div class="v lime">100%</div></div>
+  </div>
+  <div class="note">口径更正：<b style="color:#e4f222">跌破5日线=失败，没跌破=持有健康（算胜）</b>。旧版用「涨跌」误把"日内小回踩但仍站5日线"的健康持有算成亏损，已废除。信号集=当前可买 65 只（已排除科创板/北证），表现取 9-23 盘中最新价 vs 各自 MA5（数据 2026/9/24 09:16:10）。强趋势子集 14 只中 <b style="color:#e4f222">14 只仍站5日线</b>（健康率 100%）。跌破的 5 只：平均 -0.66%。最强板块：医疗服务 100%(5/5)、元件 100%(5/5)、通用设备 100%(3/3)。</div>
+</div>
+
+<div class="card" style="border-color:#3a1414">
+  <div class="box-title" style="color:#eb5757">已暴涨 · 高风险 · 不推荐追（仅观察，未计入上方中期持有排序）</div>
+  <div class="note" style="color:#c9a0a0">以下标的仍符合5日战法（站60日线、多头排列、资金↑），但现价已较60日线过度延伸（&gt;60%），属"暴涨过后"高位加速段——单日跳空/回踩风险大，不适合中期持有建仓。例：闽东电力(sz000993, 离60线+67%) 9-23 开盘即 -10% 跌停。本档已从"中期持有排序"中剔除，仅供观察警戒。</div>
+  <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">2</td>
+    <td class="nm">万向德农<span class="cd">sh600371</span><span class="ch">追高</span></td>
+    <td class="num">19.01</td>
+    <td class="num" style="color:#eb5757">+119.5%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">83</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+13.0%</td>
+    <td class="num">16.08</td>
+    <td class="num" style="color:#eb5757">+100.3%</td>
+  </tr><tr class="">
+    <td class="rk">3</td>
+    <td class="nm">澳弘电子<span class="cd">sh605058</span><span class="ch">追高</span></td>
+    <td class="num">58.60</td>
+    <td class="num" style="color:#eb5757">+93.7%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">83</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+10.0%</td>
+    <td class="num">51.29</td>
+    <td class="num" style="color:#eb5757">+97.8%</td>
+  </tr><tr class="">
+    <td class="rk">4</td>
+    <td class="nm">金健米业<span class="cd">sh600127</span></td>
+    <td class="num">16.70</td>
+    <td class="num" style="color:#eb5757">+148.5%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">88</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+0.9%</td>
+    <td class="num">15.26</td>
+    <td class="num" style="color:#eb5757">+93.7%</td>
+  </tr><tr class="">
+    <td class="rk">5</td>
+    <td class="nm">满坤科技<span class="cd">sz301132</span></td>
+    <td class="num">76.39</td>
+    <td class="num" style="color:#eb5757">+124.1%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">85</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+6.1%</td>
+    <td class="num">65.28</td>
+    <td class="num" style="color:#eb5757">+91.3%</td>
+  </tr><tr class="">
+    <td class="rk">6</td>
+    <td class="nm">华宝股份<span class="cd">sz300741</span></td>
+    <td class="num">28.82</td>
+    <td class="num" style="color:#eb5757">+56.9%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">91</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-3.4%</td>
+    <td class="num">27.48</td>
+    <td class="num" style="color:#eb5757">+87.6%</td>
+  </tr><tr class="">
+    <td class="rk">7</td>
+    <td class="nm">金丹科技<span class="cd">sz300829</span></td>
+    <td class="num">29.20</td>
+    <td class="num" style="color:#eb5757">+74.1%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">87</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+2.3%</td>
+    <td class="num">24.89</td>
+    <td class="num" style="color:#eb5757">+84.5%</td>
+  </tr><tr class="">
+    <td class="rk">8</td>
+    <td class="nm">星徽股份<span class="cd">sz300464</span></td>
+    <td class="num">12.98</td>
+    <td class="num" style="color:#eb5757">+104.1%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">87</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+2.9%</td>
+    <td class="num">11.52</td>
+    <td class="num" style="color:#eb5757">+78.1%</td>
+  </tr><tr class="">
+    <td class="rk">9</td>
+    <td class="nm">百普赛斯<span class="cd">sz301080</span></td>
+    <td class="num">129.79</td>
+    <td class="num" style="color:#eb5757">+133.3%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">84</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-0.1%</td>
+    <td class="num">114.71</td>
+    <td class="num" style="color:#eb5757">+77.2%</td>
+  </tr><tr class="">
+    <td class="rk">10</td>
+    <td class="nm">威尔高<span class="cd">sz301251</span></td>
+    <td class="num">85.40</td>
+    <td class="num" style="color:#eb5757">+122.2%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">92</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-3.9%</td>
+    <td class="num">82.00</td>
+    <td class="num" style="color:#eb5757">+73.8%</td>
+  </tr><tr class="">
+    <td class="rk">11</td>
+    <td class="nm">蓝盾光电<span class="cd">sz300862</span></td>
+    <td class="num">59.00</td>
+    <td class="num" style="color:#eb5757">+156.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">90</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.5%</td>
+    <td class="num">55.79</td>
+    <td class="num" style="color:#eb5757">+73.4%</td>
+  </tr><tr class="">
+    <td class="rk">12</td>
+    <td class="nm">高争民爆<span class="cd">sz002827</span></td>
+    <td class="num">80.20</td>
+    <td class="num" style="color:#eb5757">+115.0%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">88</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+2.6%</td>
+    <td class="num">72.14</td>
+    <td class="num" style="color:#eb5757">+70.9%</td>
+  </tr><tr class="">
+    <td class="rk">13</td>
+    <td class="nm">联域股份<span class="cd">sz001326</span></td>
+    <td class="num">106.99</td>
+    <td class="num" style="color:#eb5757">+126.6%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">89</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+6.1%</td>
+    <td class="num">97.15</td>
+    <td class="num" style="color:#eb5757">+70.2%</td>
+  </tr><tr class="">
+    <td class="rk">14</td>
+    <td class="nm">采纳股份<span class="cd">sz301122</span></td>
+    <td class="num">61.26</td>
+    <td class="num" style="color:#eb5757">+112.0%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">91</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+1.4%</td>
+    <td class="num">54.14</td>
+    <td class="num" style="color:#eb5757">+68.1%</td>
+  </tr><tr class="">
+    <td class="rk">15</td>
+    <td class="nm">华瓷股份<span class="cd">sz001216</span></td>
+    <td class="num">25.48</td>
+    <td class="num" style="color:#eb5757">+51.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">94</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-3.7%</td>
+    <td class="num">24.12</td>
+    <td class="num" style="color:#eb5757">+67.7%</td>
+  </tr><tr class="">
+    <td class="rk">16</td>
+    <td class="nm">中石科技<span class="cd">sz300684</span></td>
+    <td class="num">121.00</td>
+    <td class="num" style="color:#eb5757">+147.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">91</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+3.7%</td>
+    <td class="num">104.54</td>
+    <td class="num" style="color:#eb5757">+67.1%</td>
+  </tr><tr class="">
+    <td class="rk">17</td>
+    <td class="nm">宏昌科技<span class="cd">sz301008</span><span class="ch">追高</span></td>
+    <td class="num">62.05</td>
+    <td class="num" style="color:#eb5757">+80.7%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">89</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+12.8%</td>
+    <td class="num">50.76</td>
+    <td class="num" style="color:#eb5757">+64%</td>
+  </tr><tr class="">
+    <td class="rk">18</td>
+    <td class="nm">义翘神州<span class="cd">sz301047</span></td>
+    <td class="num">150.50</td>
+    <td class="num" style="color:#eb5757">+122.7%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">91</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+6.9%</td>
+    <td class="num">124.76</td>
+    <td class="num" style="color:#eb5757">+62.1%</td>
+  </tr><tr class="">
+    <td class="rk">19</td>
+    <td class="nm">秋田微<span class="cd">sz300939</span></td>
+    <td class="num">102.37</td>
+    <td class="num" style="color:#eb5757">+194.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">96</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.2%</td>
+    <td class="num">98.28</td>
+    <td class="num" style="color:#eb5757">+61.8%</td>
+  </tr><tr class="">
+    <td class="rk">20</td>
+    <td class="nm">*ST威领<span class="cd">sz002667</span><span class="st">ST</span></td>
+    <td class="num">23.66</td>
+    <td class="num" style="color:#eb5757">+79.1%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">88</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-33.7%</td>
+    <td class="num">20.77</td>
+    <td class="num" style="color:#eb5757">+60.4%</td>
+  </tr><tr class="">
+    <td class="rk">21</td>
+    <td class="nm">一博科技<span class="cd">sz301366</span><span class="ch">追高</span></td>
+    <td class="num">85.13</td>
+    <td class="num" style="color:#eb5757">+127.5%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">89</td>
+    <td class="rk2" style="color:#eb5757">已暴涨·高风险</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+12.8%</td>
+    <td class="num">72.03</td>
+    <td class="num" style="color:#eb5757">+60.1%</td>
+  </tr></tbody></table>
+</div>
+<div class="card">
+  <div class="box-title">资金有限，先买这些（★优先 · 中期持有级 Top 14）</div>
+  <ul class="pick-list"><li><b>领先股份</b> <span class="cd">sh603991</span> · 其他 · 强度100</li><li><b>富瀚微</b> <span class="cd">sz300613</span> · 半导体 · 强度100</li><li><b>超颖电子</b> <span class="cd">sh603175</span> · 元件 · 强度100</li><li><b>先锋新材</b> <span class="cd">sz300163</span> · 化学制品 · 强度98</li><li><b>普洛药业</b> <span class="cd">sz000739</span> · 其他 · 强度98</li><li><b>国恩股份</b> <span class="cd">sz002768</span> · 塑料 · 强度96</li><li><b>联检科技</b> <span class="cd">sz301115</span> · 专业服务 · 强度95</li><li><b>豪尔赛</b> <span class="cd">sz002963</span> · 其他 · 强度95</li><li><b>安邦护卫</b> <span class="cd">sh603373</span> · 专业服务 · 强度93</li><li><b>金禄电子</b> <span class="cd">sz301282</span> · 元件 · 强度97</li><li><b>洁雅股份</b> <span class="cd">sz301108</span> · 其他 · 强度96</li><li><b>亚康股份</b> <span class="cd">sz301085</span> · IT服务Ⅱ · 强度95</li><li><b>瑞丰高材</b> <span class="cd">sz300243</span> · 其他 · 强度94</li><li><b>通用电梯</b> <span class="cd">sz300931</span> · 其他 · 强度93</li></ul>
+  <div class="note">★优先 = 强度分 ≥ 82 且现价距前高在 -8%~+22%（强趋势、资金确认、且不在最高尖追涨）。资金不多时优先从这堆里挑，单吊 1–3 只而非铺开。</div>
+</div>
+
+<div class="card">
+  <div class="box-title">全局强度 Top 15</div>
+  <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">1</td>
+    <td class="nm">万邦医药<span class="cd">sz301520</span></td>
+    <td class="num">80.99</td>
+    <td class="num" style="color:#eb5757">+179.1%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-8.9%</td>
+    <td class="num">78.13</td>
+    <td class="num" style="color:#9bbf3a">+32.2%</td>
+  </tr><tr class="">
+    <td class="rk">2</td>
+    <td class="nm">松发股份<span class="cd">sh603268</span></td>
+    <td class="num">217.49</td>
+    <td class="num" style="color:#eb5757">+159.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.6%</td>
+    <td class="num">211.47</td>
+    <td class="num" style="color:#9bbf3a">+24%</td>
+  </tr><tr class="pick">
+    <td class="rk">3</td>
+    <td class="nm">领先股份<span class="cd">sh603991</span><span class="pk">★优先</span></td>
+    <td class="num">185.57</td>
+    <td class="num" style="color:#eb5757">+150.1%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+0.0%</td>
+    <td class="num">177.75</td>
+    <td class="num" style="color:#9bbf3a">+27.7%</td>
+  </tr><tr class="">
+    <td class="rk">4</td>
+    <td class="nm">得邦照明<span class="cd">sh603303</span></td>
+    <td class="num">29.35</td>
+    <td class="num" style="color:#eb5757">+130.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-14.2%</td>
+    <td class="num">28.52</td>
+    <td class="num" style="color:#9bbf3a">+26.9%</td>
+  </tr><tr class="">
+    <td class="rk">5</td>
+    <td class="nm">中捷精工<span class="cd">sz301072</span></td>
+    <td class="num">50.50</td>
+    <td class="num" style="color:#eb5757">+126.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.3%</td>
+    <td class="num">49.28</td>
+    <td class="num" style="color:#9bbf3a">+25.5%</td>
+  </tr><tr class="">
+    <td class="rk">6</td>
+    <td class="nm">开尔新材<span class="cd">sz300234</span></td>
+    <td class="num">12.18</td>
+    <td class="num" style="color:#eb5757">+125.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.4%</td>
+    <td class="num">11.85</td>
+    <td class="num" style="color:#9bbf3a">+27.4%</td>
+  </tr><tr class="pick">
+    <td class="rk">7</td>
+    <td class="nm">富瀚微<span class="cd">sz300613</span><span class="pk">★优先</span></td>
+    <td class="num">85.00</td>
+    <td class="num" style="color:#eb5757">+79.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.2%</td>
+    <td class="num">81.47</td>
+    <td class="num" style="color:#9bbf3a">+22.5%</td>
+  </tr><tr class="">
+    <td class="rk">8</td>
+    <td class="nm">金洲管道<span class="cd">sz002443</span></td>
+    <td class="num">13.33</td>
+    <td class="num" style="color:#eb5757">+65.0%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.5%</td>
+    <td class="num">13.06</td>
+    <td class="num" style="color:#e0a23a">+36.3%</td>
+  </tr><tr class="pick">
+    <td class="rk">9</td>
+    <td class="nm">超颖电子<span class="cd">sh603175</span><span class="pk">★优先</span></td>
+    <td class="num">112.29</td>
+    <td class="num" style="color:#eb5757">+62.0%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.7%</td>
+    <td class="num">107.96</td>
+    <td class="num" style="color:#9bbf3a">+27.3%</td>
+  </tr><tr class="">
+    <td class="rk">10</td>
+    <td class="nm">福赛科技<span class="cd">sz301529</span></td>
+    <td class="num">133.75</td>
+    <td class="num" style="color:#eb5757">+61.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.7%</td>
+    <td class="num">131.10</td>
+    <td class="num" style="color:#9bbf3a">+28.4%</td>
+  </tr><tr class="">
+    <td class="rk">11</td>
+    <td class="nm">翰博高新<span class="cd">sz301321</span></td>
+    <td class="num">53.26</td>
+    <td class="num" style="color:#eb5757">+184.2%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">99</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.0%</td>
+    <td class="num">50.64</td>
+    <td class="num" style="color:#9bbf3a">+30.7%</td>
+  </tr><tr class="pick">
+    <td class="rk">12</td>
+    <td class="nm">先锋新材<span class="cd">sz300163</span><span class="pk">★优先</span></td>
+    <td class="num">8.15</td>
+    <td class="num" style="color:#eb5757">+100.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.8%</td>
+    <td class="num">7.68</td>
+    <td class="num" style="color:#9bbf3a">+23.1%</td>
+  </tr><tr class="">
+    <td class="rk">13</td>
+    <td class="nm">药明康德<span class="cd">sh603259</span></td>
+    <td class="num">168.88</td>
+    <td class="num" style="color:#eb5757">+82.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.4%</td>
+    <td class="num">164.85</td>
+    <td class="num" style="color:#9bbf3a">+16.6%</td>
+  </tr><tr class="">
+    <td class="rk">14</td>
+    <td class="nm">恒申新材<span class="cd">sz000782</span></td>
+    <td class="num">8.36</td>
+    <td class="num" style="color:#eb5757">+70.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-7.6%</td>
+    <td class="num">8.17</td>
+    <td class="num" style="color:#9bbf3a">+12.2%</td>
+  </tr><tr class="">
+    <td class="rk">15</td>
+    <td class="nm">泓博医药<span class="cd">sz301230</span></td>
+    <td class="num">39.31</td>
+    <td class="num" style="color:#eb5757">+60.5%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-24.8%</td>
+    <td class="num">37.10</td>
+    <td class="num" style="color:#9bbf3a">+26.4%</td>
+  </tr></tbody></table>
+</div>
+
+<div class="legend">
+  <span><b>强度分</b> 0–100：头等马30 + 多头22 + 站5线8 + 资金↑12 + 贴5线紧度12 + 距前高11 + <b>离60线适度延伸</b>(甜区20-50%满分，过度延伸反而降分)</span>
+  <span><b>风险档</b> <span style="color:#9bbf3a">适合中期</span>=健康延伸+有缓冲 · <span style="color:#e0a23a">偏高·慎</span>=偏离40-60%或贴线薄 · <span style="color:#eb5757">已暴涨·高风险</span>=离60线&gt;60%，隔离不推荐追</span>
+  <span><b>离60线</b> <span style="color:#9bbf3a">绿</span>&lt;35% · <span style="color:#e0a23a">橙</span>35-60% · <span style="color:#eb5757">红</span>&gt;60%(过度延伸)</span>
+  <span><b>距前高</b> 黄=已突破，绿=有空间</span>
+  <span><b>追高</b> 现价已超前高(距前高≤-3%)</span>
+</div>
+
+<h1 style="font-size:17px;margin:22px 0 4px">按板块分组（强板块在前）</h1>
+<section class="grp">
+    <div class="ghead"><span class="gname">其他</span><span class="gmeta">12只 · 最高100分 · 均93</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="pick">
+    <td class="rk">4</td>
+    <td class="nm">领先股份<span class="cd">sh603991</span><span class="pk">★优先</span></td>
+    <td class="num">185.57</td>
+    <td class="num" style="color:#eb5757">+150.1%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+0.0%</td>
+    <td class="num">177.75</td>
+    <td class="num" style="color:#9bbf3a">+27.7%</td>
+  </tr><tr class="pick">
+    <td class="rk">17</td>
+    <td class="nm">普洛药业<span class="cd">sz000739</span><span class="pk">★优先</span></td>
+    <td class="num">25.32</td>
+    <td class="num" style="color:#eb5757">+57.5%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+1.8%</td>
+    <td class="num">24.14</td>
+    <td class="num" style="color:#9bbf3a">+19.5%</td>
+  </tr><tr class="pick">
+    <td class="rk">22</td>
+    <td class="nm">豪尔赛<span class="cd">sz002963</span><span class="pk">★优先</span></td>
+    <td class="num">24.08</td>
+    <td class="num" style="color:#eb5757">+63.5%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">95</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.0%</td>
+    <td class="num">22.10</td>
+    <td class="num" style="color:#9bbf3a">+31.8%</td>
+  </tr><tr class="">
+    <td class="rk">23</td>
+    <td class="nm">星宸科技<span class="cd">sz301536</span></td>
+    <td class="num">134.00</td>
+    <td class="num" style="color:#eb5757">+118.1%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">94</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-8.6%</td>
+    <td class="num">126.29</td>
+    <td class="num" style="color:#9bbf3a">+12.8%</td>
+  </tr><tr class="">
+    <td class="rk">26</td>
+    <td class="nm">德龙汇能<span class="cd">sz000593</span></td>
+    <td class="num">24.55</td>
+    <td class="num" style="color:#eb5757">+123.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">91</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-12.3%</td>
+    <td class="num">22.58</td>
+    <td class="num" style="color:#9bbf3a">+11.7%</td>
+  </tr><tr class="">
+    <td class="rk">31</td>
+    <td class="nm">恒逸石化<span class="cd">sz000703</span></td>
+    <td class="num">17.63</td>
+    <td class="num" style="color:#eb5757">+84.8%</td>
+    <td class="num" style="color:#8a8f98;font-weight:700">62</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span></td>
+    <td class="num" style="color:#e4f222">-12.4%</td>
+    <td class="num">17.00</td>
+    <td class="num" style="color:#9bbf3a">+10.2%</td>
+  </tr><tr class="">
+    <td class="rk">40</td>
+    <td class="nm">华凯易佰<span class="cd">sz300592</span></td>
+    <td class="num">20.80</td>
+    <td class="num" style="color:#eb5757">+93.2%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-7.3%</td>
+    <td class="num">20.75</td>
+    <td class="num" style="color:#9bbf3a">+22.2%</td>
+  </tr><tr class="">
+    <td class="rk">44</td>
+    <td class="nm">致尚科技<span class="cd">sz301486</span></td>
+    <td class="num">218.10</td>
+    <td class="num" style="color:#eb5757">+69.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-27.3%</td>
+    <td class="num">217.34</td>
+    <td class="num" style="color:#9bbf3a">+25.9%</td>
+  </tr><tr class="pick">
+    <td class="rk">53</td>
+    <td class="nm">洁雅股份<span class="cd">sz301108</span><span class="pk">★优先</span></td>
+    <td class="num">52.39</td>
+    <td class="num" style="color:#eb5757">+57.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">96</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+5.4%</td>
+    <td class="num">47.28</td>
+    <td class="num" style="color:#e0a23a">+46%</td>
+  </tr><tr class="pick">
+    <td class="rk">55</td>
+    <td class="nm">瑞丰高材<span class="cd">sz300243</span><span class="pk">★优先</span></td>
+    <td class="num">24.57</td>
+    <td class="num" style="color:#eb5757">+137.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">94</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+1.6%</td>
+    <td class="num">22.49</td>
+    <td class="num" style="color:#e0a23a">+52.3%</td>
+  </tr><tr class="">
+    <td class="rk">57</td>
+    <td class="nm">康龙化成<span class="cd">sz300759</span></td>
+    <td class="num">45.02</td>
+    <td class="num" style="color:#eb5757">+50.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">94</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-16.0%</td>
+    <td class="num">44.33</td>
+    <td class="num" style="color:#9bbf3a">+9.6%</td>
+  </tr><tr class="pick">
+    <td class="rk">58</td>
+    <td class="nm">通用电梯<span class="cd">sz300931</span><span class="pk">★优先</span><span class="ch">追高</span></td>
+    <td class="num">19.99</td>
+    <td class="num" style="color:#eb5757">+81.7%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">93</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+11.4%</td>
+    <td class="num">16.98</td>
+    <td class="num" style="color:#e0a23a">+40.6%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">医疗服务</span><span class="gmeta">5只 · 最高100分 · 均93</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">2</td>
+    <td class="nm">万邦医药<span class="cd">sz301520</span></td>
+    <td class="num">80.99</td>
+    <td class="num" style="color:#eb5757">+179.1%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-8.9%</td>
+    <td class="num">78.13</td>
+    <td class="num" style="color:#9bbf3a">+32.2%</td>
+  </tr><tr class="">
+    <td class="rk">14</td>
+    <td class="nm">药明康德<span class="cd">sh603259</span></td>
+    <td class="num">168.88</td>
+    <td class="num" style="color:#eb5757">+82.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.4%</td>
+    <td class="num">164.85</td>
+    <td class="num" style="color:#9bbf3a">+16.6%</td>
+  </tr><tr class="">
+    <td class="rk">16</td>
+    <td class="nm">泓博医药<span class="cd">sz301230</span></td>
+    <td class="num">39.31</td>
+    <td class="num" style="color:#eb5757">+60.5%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-24.8%</td>
+    <td class="num">37.10</td>
+    <td class="num" style="color:#9bbf3a">+26.4%</td>
+  </tr><tr class="">
+    <td class="rk">38</td>
+    <td class="nm">凯莱英<span class="cd">sz002821</span></td>
+    <td class="num">188.00</td>
+    <td class="num" style="color:#eb5757">+98.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.0%</td>
+    <td class="num">187.62</td>
+    <td class="num" style="color:#9bbf3a">+11.6%</td>
+  </tr><tr class="">
+    <td class="rk">64</td>
+    <td class="nm">昭衍新药<span class="cd">sh603127</span><span class="wt">自选</span></td>
+    <td class="num">46.12</td>
+    <td class="num" style="color:#27a644">-1.3%</td>
+    <td class="num" style="color:#9bbf3a;font-weight:700">70</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-17.2%</td>
+    <td class="num">45.31</td>
+    <td class="num" style="color:#9bbf3a">+0.5%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">元件</span><span class="gmeta">5只 · 最高100分 · 均97</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="pick">
+    <td class="rk">10</td>
+    <td class="nm">超颖电子<span class="cd">sh603175</span><span class="pk">★优先</span></td>
+    <td class="num">112.29</td>
+    <td class="num" style="color:#eb5757">+62.0%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.7%</td>
+    <td class="num">107.96</td>
+    <td class="num" style="color:#9bbf3a">+27.3%</td>
+  </tr><tr class="">
+    <td class="rk">48</td>
+    <td class="nm">崇达技术<span class="cd">sz002815</span></td>
+    <td class="num">24.56</td>
+    <td class="num" style="color:#eb5757">+77.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">99</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.5%</td>
+    <td class="num">24.26</td>
+    <td class="num" style="color:#e0a23a">+60%</td>
+  </tr><tr class="pick">
+    <td class="rk">51</td>
+    <td class="nm">金禄电子<span class="cd">sz301282</span><span class="pk">★优先</span></td>
+    <td class="num">47.60</td>
+    <td class="num" style="color:#eb5757">+119.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">97</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-0.8%</td>
+    <td class="num">46.19</td>
+    <td class="num" style="color:#e0a23a">+52.2%</td>
+  </tr><tr class="">
+    <td class="rk">52</td>
+    <td class="nm">奥士康<span class="cd">sz002913</span></td>
+    <td class="num">90.86</td>
+    <td class="num" style="color:#eb5757">+109.9%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">97</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+0.1%</td>
+    <td class="num">85.94</td>
+    <td class="num" style="color:#e0a23a">+56.6%</td>
+  </tr><tr class="">
+    <td class="rk">56</td>
+    <td class="nm">四会富仕<span class="cd">sz300852</span></td>
+    <td class="num">76.86</td>
+    <td class="num" style="color:#eb5757">+98.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">94</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-7.5%</td>
+    <td class="num">72.24</td>
+    <td class="num" style="color:#e0a23a">+51.8%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">家居用品</span><span class="gmeta">4只 · 最高100分 · 均94</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">36</td>
+    <td class="nm">德尔未来<span class="cd">sz002631</span></td>
+    <td class="num">13.57</td>
+    <td class="num" style="color:#eb5757">+128.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-8.0%</td>
+    <td class="num">13.43</td>
+    <td class="num" style="color:#e0a23a">+47%</td>
+  </tr><tr class="">
+    <td class="rk">37</td>
+    <td class="nm">爱丽家居<span class="cd">sh603221</span></td>
+    <td class="num">31.99</td>
+    <td class="num" style="color:#eb5757">+122.5%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-5.9%</td>
+    <td class="num">31.85</td>
+    <td class="num" style="color:#e0a23a">+56.2%</td>
+  </tr><tr class="">
+    <td class="rk">42</td>
+    <td class="nm">*ST四通<span class="cd">sh603838</span><span class="st">ST</span></td>
+    <td class="num">14.16</td>
+    <td class="num" style="color:#eb5757">+88.5%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.3%</td>
+    <td class="num">13.82</td>
+    <td class="num" style="color:#e0a23a">+41%</td>
+  </tr><tr class="">
+    <td class="rk">62</td>
+    <td class="nm">海鸥住工<span class="cd">sz002084</span></td>
+    <td class="num">6.46</td>
+    <td class="num" style="color:#eb5757">+65.2%</td>
+    <td class="num" style="color:#9bbf3a;font-weight:700">74</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-14.4%</td>
+    <td class="num">5.99</td>
+    <td class="num" style="color:#e0a23a">+46.2%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">通用设备</span><span class="gmeta">3只 · 最高100分 · 均90</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">33</td>
+    <td class="nm">海鸥股份<span class="cd">sh603269</span></td>
+    <td class="num">26.84</td>
+    <td class="num" style="color:#eb5757">+193.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-7.6%</td>
+    <td class="num">26.53</td>
+    <td class="num" style="color:#e0a23a">+45.1%</td>
+  </tr><tr class="">
+    <td class="rk">45</td>
+    <td class="nm">多浦乐<span class="cd">sz301528</span></td>
+    <td class="num">75.74</td>
+    <td class="num" style="color:#eb5757">+64.2%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-14.3%</td>
+    <td class="num">74.49</td>
+    <td class="num" style="color:#9bbf3a">+29.5%</td>
+  </tr><tr class="">
+    <td class="rk">63</td>
+    <td class="nm">瑞晨环保<span class="cd">sz301273</span></td>
+    <td class="num">37.46</td>
+    <td class="num" style="color:#eb5757">+93.1%</td>
+    <td class="num" style="color:#9bbf3a;font-weight:700">71</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-16.1%</td>
+    <td class="num">37.14</td>
+    <td class="num" style="color:#9bbf3a">+2.8%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">汽车零部件</span><span class="gmeta">2只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">6</td>
+    <td class="nm">中捷精工<span class="cd">sz301072</span></td>
+    <td class="num">50.50</td>
+    <td class="num" style="color:#eb5757">+126.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.3%</td>
+    <td class="num">49.28</td>
+    <td class="num" style="color:#9bbf3a">+25.5%</td>
+  </tr><tr class="">
+    <td class="rk">11</td>
+    <td class="nm">福赛科技<span class="cd">sz301529</span></td>
+    <td class="num">133.75</td>
+    <td class="num" style="color:#eb5757">+61.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.7%</td>
+    <td class="num">131.10</td>
+    <td class="num" style="color:#9bbf3a">+28.4%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">半导体</span><span class="gmeta">2只 · 最高100分 · 均96</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="pick">
+    <td class="rk">8</td>
+    <td class="nm">富瀚微<span class="cd">sz300613</span><span class="pk">★优先</span></td>
+    <td class="num">85.00</td>
+    <td class="num" style="color:#eb5757">+79.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.2%</td>
+    <td class="num">81.47</td>
+    <td class="num" style="color:#9bbf3a">+22.5%</td>
+  </tr><tr class="">
+    <td class="rk">59</td>
+    <td class="nm">先导基电<span class="cd">sh600641</span></td>
+    <td class="num">47.70</td>
+    <td class="num" style="color:#eb5757">+159.9%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">92</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.5%</td>
+    <td class="num">41.08</td>
+    <td class="num" style="color:#e0a23a">+40.2%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">光学光电子</span><span class="gmeta">2只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">12</td>
+    <td class="nm">翰博高新<span class="cd">sz301321</span></td>
+    <td class="num">53.26</td>
+    <td class="num" style="color:#eb5757">+184.2%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">99</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.0%</td>
+    <td class="num">50.64</td>
+    <td class="num" style="color:#9bbf3a">+30.7%</td>
+  </tr><tr class="">
+    <td class="rk">39</td>
+    <td class="nm">东田微<span class="cd">sz301183</span></td>
+    <td class="num">311.30</td>
+    <td class="num" style="color:#eb5757">+95.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-0.7%</td>
+    <td class="num">304.75</td>
+    <td class="num" style="color:#e0a23a">+45%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">消费电子</span><span class="gmeta">2只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">34</td>
+    <td class="nm">博硕科技<span class="cd">sz300951</span></td>
+    <td class="num">93.67</td>
+    <td class="num" style="color:#eb5757">+173.9%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-3.0%</td>
+    <td class="num">92.74</td>
+    <td class="num" style="color:#e0a23a">+42.3%</td>
+  </tr><tr class="">
+    <td class="rk">35</td>
+    <td class="nm">奥尼电子<span class="cd">sz301189</span></td>
+    <td class="num">71.50</td>
+    <td class="num" style="color:#eb5757">+132.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-13.0%</td>
+    <td class="num">70.21</td>
+    <td class="num" style="color:#9bbf3a">+34.8%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">航海装备Ⅱ</span><span class="gmeta">1只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">3</td>
+    <td class="nm">松发股份<span class="cd">sh603268</span></td>
+    <td class="num">217.49</td>
+    <td class="num" style="color:#eb5757">+159.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.6%</td>
+    <td class="num">211.47</td>
+    <td class="num" style="color:#9bbf3a">+24%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">照明设备Ⅱ</span><span class="gmeta">1只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">5</td>
+    <td class="nm">得邦照明<span class="cd">sh603303</span></td>
+    <td class="num">29.35</td>
+    <td class="num" style="color:#eb5757">+130.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-14.2%</td>
+    <td class="num">28.52</td>
+    <td class="num" style="color:#9bbf3a">+26.9%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">装修建材</span><span class="gmeta">1只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">7</td>
+    <td class="nm">开尔新材<span class="cd">sz300234</span></td>
+    <td class="num">12.18</td>
+    <td class="num" style="color:#eb5757">+125.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-2.4%</td>
+    <td class="num">11.85</td>
+    <td class="num" style="color:#9bbf3a">+27.4%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">特钢Ⅱ</span><span class="gmeta">1只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">9</td>
+    <td class="nm">金洲管道<span class="cd">sz002443</span></td>
+    <td class="num">13.33</td>
+    <td class="num" style="color:#eb5757">+65.0%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-6.5%</td>
+    <td class="num">13.06</td>
+    <td class="num" style="color:#e0a23a">+36.3%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">电机Ⅱ</span><span class="gmeta">1只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">41</td>
+    <td class="nm">康平科技<span class="cd">sz300907</span></td>
+    <td class="num">56.20</td>
+    <td class="num" style="color:#eb5757">+89.9%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-10.8%</td>
+    <td class="num">56.20</td>
+    <td class="num" style="color:#9bbf3a">+16.7%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">装修装饰Ⅱ</span><span class="gmeta">1只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">43</td>
+    <td class="nm">江河集团<span class="cd">sh601886</span></td>
+    <td class="num">13.68</td>
+    <td class="num" style="color:#eb5757">+81.2%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-1.9%</td>
+    <td class="num">13.44</td>
+    <td class="num" style="color:#9bbf3a">+30.2%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">种植业</span><span class="gmeta">1只 · 最高100分 · 均100</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">46</td>
+    <td class="nm">敦煌种业<span class="cd">sh600354</span></td>
+    <td class="num">10.33</td>
+    <td class="num" style="color:#eb5757">+60.4%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">100</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-16.1%</td>
+    <td class="num">10.13</td>
+    <td class="num" style="color:#e0a23a">+46.1%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">基础建设</span><span class="gmeta">1只 · 最高99分 · 均99</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">47</td>
+    <td class="nm">杭州园林<span class="cd">sz300649</span></td>
+    <td class="num">28.81</td>
+    <td class="num" style="color:#eb5757">+101.0%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">99</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-8.5%</td>
+    <td class="num">28.58</td>
+    <td class="num" style="color:#9bbf3a">+13.6%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">通信设备</span><span class="gmeta">1只 · 最高99分 · 均99</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">49</td>
+    <td class="nm">共进股份<span class="cd">sh603118</span></td>
+    <td class="num">18.34</td>
+    <td class="num" style="color:#eb5757">+56.9%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">99</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-10.9%</td>
+    <td class="num">18.07</td>
+    <td class="num" style="color:#9bbf3a">+14.8%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">化学制品</span><span class="gmeta">2只 · 最高98分 · 均84</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="pick">
+    <td class="rk">13</td>
+    <td class="nm">先锋新材<span class="cd">sz300163</span><span class="pk">★优先</span></td>
+    <td class="num">8.15</td>
+    <td class="num" style="color:#eb5757">+100.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.8%</td>
+    <td class="num">7.68</td>
+    <td class="num" style="color:#9bbf3a">+23.1%</td>
+  </tr><tr class="">
+    <td class="rk">30</td>
+    <td class="nm">闰土股份<span class="cd">sz002440</span></td>
+    <td class="num">13.01</td>
+    <td class="num" style="color:#eb5757">+78.6%</td>
+    <td class="num" style="color:#8a8f98;font-weight:700">69</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-19.9%</td>
+    <td class="num">12.43</td>
+    <td class="num" style="color:#9bbf3a">+5.8%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">化学纤维</span><span class="gmeta">1只 · 最高98分 · 均98</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">15</td>
+    <td class="nm">恒申新材<span class="cd">sz000782</span></td>
+    <td class="num">8.36</td>
+    <td class="num" style="color:#eb5757">+70.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-7.6%</td>
+    <td class="num">8.17</td>
+    <td class="num" style="color:#9bbf3a">+12.2%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">黑色家电</span><span class="gmeta">1只 · 最高98分 · 均98</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">50</td>
+    <td class="nm">高斯贝尔<span class="cd">sz002848</span></td>
+    <td class="num">15.66</td>
+    <td class="num" style="color:#eb5757">+66.1%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">98</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-12.6%</td>
+    <td class="num">15.40</td>
+    <td class="num" style="color:#9bbf3a">+16.2%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">其他电子Ⅱ</span><span class="gmeta">1只 · 最高97分 · 均97</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">18</td>
+    <td class="nm">百邦科技<span class="cd">sz300736</span></td>
+    <td class="num">34.55</td>
+    <td class="num" style="color:#eb5757">+119.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">97</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-28.7%</td>
+    <td class="num">33.43</td>
+    <td class="num" style="color:#9bbf3a">+17.6%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">塑料</span><span class="gmeta">2只 · 最高96分 · 均79</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="pick">
+    <td class="rk">20</td>
+    <td class="nm">国恩股份<span class="cd">sz002768</span><span class="pk">★优先</span></td>
+    <td class="num">79.02</td>
+    <td class="num" style="color:#eb5757">+121.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">96</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+5.6%</td>
+    <td class="num">71.01</td>
+    <td class="num" style="color:#9bbf3a">+34.6%</td>
+  </tr><tr class="">
+    <td class="rk">32</td>
+    <td class="nm">艾艾精工<span class="cd">sh603580</span></td>
+    <td class="num">77.57</td>
+    <td class="num" style="color:#eb5757">+374.2%</td>
+    <td class="num" style="color:#8a8f98;font-weight:700">61</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span></td>
+    <td class="num" style="color:#e4f222">-12.4%</td>
+    <td class="num">71.02</td>
+    <td class="num" style="color:#e0a23a">+37.9%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">软件开发</span><span class="gmeta">1只 · 最高96分 · 均96</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">19</td>
+    <td class="nm">行云科技<span class="cd">sz300209</span></td>
+    <td class="num">37.64</td>
+    <td class="num" style="color:#eb5757">+580.6%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">96</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-8.2%</td>
+    <td class="num">36.23</td>
+    <td class="num" style="color:#9bbf3a">+16.8%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">专业服务</span><span class="gmeta">2只 · 最高95分 · 均94</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="pick">
+    <td class="rk">21</td>
+    <td class="nm">联检科技<span class="cd">sz301115</span><span class="pk">★优先</span></td>
+    <td class="num">38.97</td>
+    <td class="num" style="color:#eb5757">+144.1%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">95</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+5.3%</td>
+    <td class="num">34.81</td>
+    <td class="num" style="color:#9bbf3a">+33.9%</td>
+  </tr><tr class="pick">
+    <td class="rk">25</td>
+    <td class="nm">安邦护卫<span class="cd">sh603373</span><span class="pk">★优先</span><span class="ch">追高</span></td>
+    <td class="num">52.76</td>
+    <td class="num" style="color:#eb5757">+86.8%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">93</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#8a8f98">+19.0%</td>
+    <td class="num">43.17</td>
+    <td class="num" style="color:#e0a23a">+38.9%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">IT服务Ⅱ</span><span class="gmeta">1只 · 最高95分 · 均95</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="pick">
+    <td class="rk">54</td>
+    <td class="nm">亚康股份<span class="cd">sz301085</span><span class="pk">★优先</span></td>
+    <td class="num">90.00</td>
+    <td class="num" style="color:#eb5757">+63.2%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">95</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#9bbf3a">+1.0%</td>
+    <td class="num">80.29</td>
+    <td class="num" style="color:#e0a23a">+42.8%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">煤炭开采</span><span class="gmeta">2只 · 最高94分 · 均78</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">24</td>
+    <td class="nm">新集能源<span class="cd">sh601918</span></td>
+    <td class="num">10.87</td>
+    <td class="num" style="color:#eb5757">+68.0%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">94</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-9.7%</td>
+    <td class="num">10.61</td>
+    <td class="num" style="color:#9bbf3a">+8.2%</td>
+  </tr><tr class="">
+    <td class="rk">65</td>
+    <td class="nm">昊华能源<span class="cd">sh601101</span></td>
+    <td class="num">13.26</td>
+    <td class="num" style="color:#eb5757">+90.5%</td>
+    <td class="num" style="color:#8a8f98;font-weight:700">62</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span></td>
+    <td class="num" style="color:#e4f222">-13.4%</td>
+    <td class="num">13.24</td>
+    <td class="num" style="color:#9bbf3a">+6%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">电力</span><span class="gmeta">1只 · 最高92分 · 均92</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">60</td>
+    <td class="nm">金房能源<span class="cd">sz001210</span></td>
+    <td class="num">29.39</td>
+    <td class="num" style="color:#eb5757">+121.3%</td>
+    <td class="num" style="color:#e4f222;font-weight:700">92</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span></td>
+    <td class="num" style="color:#e4f222">-6.6%</td>
+    <td class="num">29.29</td>
+    <td class="num" style="color:#9bbf3a">+23%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">其他电源设备Ⅱ</span><span class="gmeta">1只 · 最高84分 · 均84</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">61</td>
+    <td class="nm">中国动力<span class="cd">sh600482</span></td>
+    <td class="num">34.56</td>
+    <td class="num" style="color:#eb5757">+60.0%</td>
+    <td class="num" style="color:#bfe000;font-weight:700">84</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">多头</span><span class="f">站5线</span></td>
+    <td class="num" style="color:#e4f222">-19.9%</td>
+    <td class="num">34.43</td>
+    <td class="num" style="color:#9bbf3a">+9%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">环境治理</span><span class="gmeta">1只 · 最高74分 · 均74</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">27</td>
+    <td class="nm">ST雪浪<span class="cd">sz300385</span><span class="st">ST</span></td>
+    <td class="num">13.57</td>
+    <td class="num" style="color:#eb5757">+115.4%</td>
+    <td class="num" style="color:#9bbf3a;font-weight:700">74</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-38.6%</td>
+    <td class="num">13.08</td>
+    <td class="num" style="color:#9bbf3a">+14.1%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">医疗器械</span><span class="gmeta">1只 · 最高73分 · 均73</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">28</td>
+    <td class="nm">正川股份<span class="cd">sh603976</span></td>
+    <td class="num">32.90</td>
+    <td class="num" style="color:#eb5757">+67.3%</td>
+    <td class="num" style="color:#9bbf3a;font-weight:700">73</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-11.5%</td>
+    <td class="num">31.26</td>
+    <td class="num" style="color:#9bbf3a">+16.7%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">化学制药</span><span class="gmeta">1只 · 最高70分 · 均70</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">29</td>
+    <td class="nm">哈药股份<span class="cd">sh600664</span><span class="wt">自选</span></td>
+    <td class="num">9.08</td>
+    <td class="num" style="color:#eb5757">+10.1%</td>
+    <td class="num" style="color:#9bbf3a;font-weight:700">70</td>
+    <td class="rk2" style="color:#9bbf3a">适合中期</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span><span class="f">资金↑</span></td>
+    <td class="num" style="color:#e4f222">-4.5%</td>
+    <td class="num">7.92</td>
+    <td class="num" style="color:#e0a23a">+35.7%</td>
+  </tr></tbody></table>
+  </section><section class="grp">
+    <div class="ghead"><span class="gname">化学原料</span><span class="gmeta">1只 · 最高60分 · 均60</span></div>
+    <table class="tbl"><thead><tr><th class="rk">#</th><th>名称/代码</th><th class="num">现价</th><th class="num">涨幅</th><th class="num">强度</th><th>风险档</th><th>战法标记</th><th class="num">距前高</th><th class="num">5日线</th><th class="num">离60线</th></tr></thead><tbody><tr class="">
+    <td class="rk">66</td>
+    <td class="nm">卫星化学<span class="cd">sz002648</span></td>
+    <td class="num">26.92</td>
+    <td class="num" style="color:#eb5757">+56.0%</td>
+    <td class="num" style="color:#8a8f98;font-weight:700">60</td>
+    <td class="rk2" style="color:#e0a23a">偏高·慎</td>
+    <td class="flags"><span class="f">头等马</span><span class="f">站5线</span></td>
+    <td class="num" style="color:#e4f222">-9.8%</td>
+    <td class="num">26.79</td>
+    <td class="num" style="color:#9bbf3a">+4.5%</td>
+  </tr></tbody></table>
+  </section>
+
+<div class="note">
+  <b>排序目的：</b>本表只排<b style="color:#9bbf3a">适合中期持有</b>的标的——强趋势(站60日线/60日线向上/多头排列)、资金同步(OBV↑)、且有缓冲(距5日线≥3%、未过度延伸)。"暴涨过后"的过度延伸票(离60线&gt;60%)已被隔离到上方红框，<b>不计入排序、不推荐追</b>（例：闽东电力 9-23 开盘 -10% 跌停）。
+  <br><b>强度分怎么读：</b>分越高=趋势越正。离60线延伸度改为"甜区给分"——<b>适度延伸(20-50%)满分，过度延伸(&gt;60%)反而降分</b>，避免把高位加速票排到前面；再用贴5日线紧度+距前高做微调。
+  <br><b>风险档：</b><span style="color:#9bbf3a">适合中期</span>=健康延伸+缓冲足；<span style="color:#e0a23a">偏高·慎</span>=离60线40-60%或贴5日线过薄(缓冲&lt;2%)，可小仓试探；<span style="color:#eb5757">已暴涨·高风险</span>=离60线&gt;60%，高位加速、单日跳空风险大，隔离观察。
+  <br><b>★优先</b> = 中期持有级：强度≥80 且离60线&lt;55% 且距5日线≥3% 且不在最高尖(距前高-5%~+28%)、非ST。资金不多从这堆挑 1–3 只，止损设于5日线下方。
+  <br><b>风险提示：</b>量化结论仅供参考，不构成投资建议。市场有风险，投资需谨慎。
+</div>
+</div></body></html>

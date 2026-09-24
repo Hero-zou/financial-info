@@ -1,0 +1,440 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ============================================================================
+   Linear 品牌规范落地（.workbuddy/linear.app-brand-package）
+   调色板：Midnight precision instrument — Void #08090a / Carbon #0f1011 /
+           Graphite #23252a 发丝边框 / Acid Lime #e4f222 唯一彩色信号
+   字体：Inter（中文回退系统字体）；等宽 Berkeley Mono / JetBrains Mono 用于技术数据
+   圆角：small 2 / controls 6 / cards 12 / pills 9999
+   阴影：以发丝内描边分隔，不用外投影做常规卡片抬升（克制）
+
+   硬规矩覆盖：A 股「红涨绿跌」→ 涨=珊瑚红 #eb5757，跌=脉冲绿 #27a644
+              （与 Linear 自带 coral-red / pulse-green 一致，属数据语义非行动色）
+   ============================================================================ */
+
+/* ---------- 静态设计令牌：字体 / 字号 / 圆角（与明暗无关，取自规范） ---------- */
+@theme {
+  /* 字体：规范为 Inter。中文字形 Inter 不含，按「不外链运行时依赖」回退系统字体；
+     等宽栈用于股票代码、技术元数据。 */
+  --font-sans: "Inter", "Inter Variable", system-ui, -apple-system, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+    sans-serif;
+  --font-mono: "Berkeley Mono", "JetBrains Mono", ui-monospace, SFMono-Regular,
+    Menlo, Consolas, "Courier New", monospace;
+
+  /* 字号阶梯（tokens.json typography，权重 ≤590，紧字距） */
+  --text-display-xl: 64px;
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -1.408px;
+  --text-display-xl--font-weight: 510;
+
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 1;
+  --text-display-lg--letter-spacing: -1.056px;
+  --text-display-lg--font-weight: 510;
+
+  --text-display-md: 32px;
+  --text-display-md--line-height: 1.13;
+  --text-display-md--letter-spacing: -0.704px;
+  --text-display-md--font-weight: 510;
+
+  --text-display-sm: 24px;
+  --text-display-sm--line-height: 1.3;
+  --text-display-sm--letter-spacing: -0.288px;
+  --text-display-sm--font-weight: 400;
+
+  --text-title-lg: 20px;
+  --text-title-lg--line-height: 1.33;
+  --text-title-lg--letter-spacing: -0.24px;
+  --text-title-lg--font-weight: 590;
+
+  --text-title-md: 16px;
+  --text-title-md--line-height: 1.4;
+  --text-title-md--letter-spacing: 0;
+  --text-title-md--font-weight: 510;
+
+  --text-title-sm: 15px;
+  --text-title-sm--line-height: 1.5;
+  --text-title-sm--letter-spacing: 0;
+  --text-title-sm--font-weight: 510;
+
+  --text-stat-display: 56px;
+  --text-stat-display--line-height: 1;
+  --text-stat-display--letter-spacing: -1.5px;
+  --text-stat-display--font-weight: 510;
+
+  --text-body-md: 15px;
+  --text-body-md--line-height: 1.6;
+  --text-body-md--letter-spacing: -0.165px;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.5;
+
+  --text-caption: 13px;
+  --text-caption--line-height: 1.4;
+  --text-caption--font-weight: 400;
+
+  --text-caption-uppercase: 12px;
+  --text-caption-uppercase--line-height: 1.4;
+  --text-caption-uppercase--letter-spacing: 0.08em;
+  --text-caption-uppercase--font-weight: 500;
+
+  --text-code: 14px;
+  --text-code--line-height: 1.55;
+
+  --text-button: 14px;
+  --text-button--line-height: 1;
+  --text-button--font-weight: 510;
+
+  --text-nav-link: 14px;
+  --text-nav-link--line-height: 1.4;
+  --text-nav-link--font-weight: 400;
+
+  /* 圆角：规范 small2 / controls6 / cards12 / pills9999 */
+  --radius-sm: 2px; /* 徽标 / 小标签 */
+  --radius-md: 6px; /* 按钮、输入框 */
+  --radius-lg: 12px; /* 卡片 */
+  --radius-xl: 12px; /* 大容器 */
+  --radius-full: 9999px; /* 标签 pill */
+}
+
+/* ---------- 主题色：亮色态（由 Linear 中性阶梯派生的 Linear-light） ---------- */
+:root {
+  color-scheme: light;
+
+  /* 规范原值（取自 tokens.json / variables.css） */
+  --ln-void: #08090a;
+  --ln-carbon: #0f1011;
+  --ln-obsidian: #161718;
+  --ln-graphite: #23252a;
+  --ln-smoke: #383b3f;
+  --ln-ash: #62666d;
+  --ln-fog: #8a8f98;
+  --ln-mist: #d0d6e0;
+  --ln-bone: #e5e5e6;
+  --ln-paper: #ffffff;
+  --ln-lime: #e4f222;
+  --ln-green: #27a644;
+  --ln-red: #eb5757;
+  --ln-teal: #02b8cc;
+
+  /* 角色映射 */
+  --background: var(--ln-paper);
+  --foreground: var(--ln-void);
+  --card: #ffffff;
+  --card-foreground: var(--ln-void);
+  --popover: #ffffff;
+  --popover-foreground: var(--ln-void);
+  --primary: var(--ln-lime); /* Acid Lime：唯一彩色行动 */
+  --primary-foreground: var(--ln-void);
+  --primary-hover: #c9d61f;
+  --secondary: #f4f5f6;
+  --secondary-foreground: var(--ln-obsidian);
+  --muted: #f4f5f6;
+  --muted-foreground: var(--ln-ash);
+  --accent: #f4f5f6; /* hover 底 */
+  --accent-foreground: var(--ln-obsidian);
+  --border: #e4e6e8; /* 发丝分隔线 */
+  --border-hover: #c9ccd0;
+  --input: #d0d3d7;
+  --ring: var(--ln-lime);
+  --info: var(--ln-teal); /* 链接 / 信息强调 */
+  --success: var(--ln-green);
+  --warning: var(--ln-lime);
+  --destructive: var(--ln-red);
+  --destructive-foreground: var(--ln-paper);
+  --highlight: rgba(228, 242, 34, 0.18); /* 轻强调底 */
+  --highlight-foreground: #3f4700; /* 浅底上的深橄榄文字，保证可读 */
+
+  /* 行情语义：红涨绿跌（覆盖规范 success/error 映射） */
+  --up: var(--ln-red);
+  --down: var(--ln-green);
+
+  --selection: rgba(228, 242, 34, 0.3);
+
+  /* 高科动效令牌（亮色态，克制） */
+  --grid-line: rgba(8, 9, 10, 0.05);
+  --glow-soft: rgba(228, 242, 34, 0.05);
+  --card-glow: 0 8px 24px -14px rgba(8, 9, 10, 0.18);
+}
+
+/* ---------- 主题色：暗色态（Linear Midnight，规范主基调） ---------- */
+.dark {
+  color-scheme: dark;
+
+  /* 规范原值 */
+  --ln-void: #08090a;
+  --ln-carbon: #0f1011;
+  --ln-obsidian: #161718;
+  --ln-graphite: #23252a;
+  --ln-smoke: #383b3f;
+  --ln-ash: #62666d;
+  --ln-fog: #8a8f98;
+  --ln-mist: #d0d6e0;
+  --ln-bone: #e5e5e6;
+  --ln-paper: #ffffff;
+  --ln-lime: #e4f222;
+  --ln-green: #27a644;
+  --ln-red: #eb5757;
+  --ln-teal: #02b8cc;
+
+  /* 角色映射 */
+  --background: var(--ln-void);
+  --foreground: var(--ln-mist);
+  --card: var(--ln-carbon);
+  --card-foreground: var(--ln-mist);
+  --popover: var(--ln-carbon);
+  --popover-foreground: var(--ln-mist);
+  --primary: var(--ln-lime); /* Acid Lime：唯一彩色信号 */
+  --primary-foreground: var(--ln-void);
+  --primary-hover: #c9d61f;
+  --secondary: var(--ln-obsidian);
+  --secondary-foreground: var(--ln-bone);
+  --muted: var(--ln-obsidian);
+  --muted-foreground: var(--ln-fog);
+  --accent: var(--ln-obsidian);
+  --accent-foreground: var(--ln-mist);
+  --border: var(--ln-graphite); /* Graphite 发丝线 */
+  --border-hover: var(--ln-smoke);
+  --input: var(--ln-graphite);
+  --ring: var(--ln-lime);
+  --info: var(--ln-teal);
+  --success: var(--ln-green);
+  --warning: var(--ln-lime);
+  --destructive: var(--ln-red);
+  --destructive-foreground: var(--ln-paper);
+  --highlight: rgba(228, 242, 34, 0.12); /* 暗色下酸柠檬底 */
+  --highlight-foreground: var(--ln-lime);
+
+  --up: var(--ln-red); /* 涨=珊瑚红 */
+  --down: var(--ln-green); /* 跌=脉冲绿 */
+
+  --selection: rgba(228, 242, 34, 0.28);
+
+  /* 高科动效令牌（暗色态，顶部极淡酸柠檬辉光） */
+  --grid-line: rgba(138, 143, 152, 0.06);
+  --glow-soft: rgba(228, 242, 34, 0.06);
+  --card-glow: 0 10px 30px -16px rgba(0, 0, 0, 0.7);
+}
+
+/* ---------- 把角色变量映射成 Tailwind 工具类 ---------- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-info: var(--info);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+
+  /* 行情：红涨绿跌 */
+  --color-up: var(--up);
+  --color-down: var(--down);
+}
+
+/* ---------- 基础层 ---------- */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 15px; /* Linear body 基准 15px */
+    line-height: 1.6;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background: var(--selection);
+  }
+}
+
+/* ============================================================================
+   Linear 风格动效与布局增强（Midnight 克制：发丝边框 + 极淡辉光 + 错落入场）
+   ============================================================================ */
+
+/* 全屏网格背景 + 顶部极淡辉光（固定层，置于内容之下） */
+.fx-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--background);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+.fx-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 36% at 50% -8%, var(--glow-soft), transparent 70%);
+}
+
+/* 卡片：发丝边框 + hover 微抬 + 酸柠檬描边（克制，不廉价发光） */
+.fx-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fx-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: var(--card-glow);
+  }
+}
+
+/* 入场错落（staggered fade-up） */
+@keyframes fx-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fx-fade-up {
+    animation: fx-fade-up 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+}
+
+/* 行情滚动条（marquee） */
+@keyframes fx-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fx-marquee {
+    animation: fx-marquee 34s linear infinite;
+  }
+  .fx-marquee:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* 实时脉冲点 */
+@keyframes fx-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+.fx-pulse {
+  animation: fx-pulse 1.6s ease-in-out infinite;
+}
+
+/* 细滚动条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hover) transparent;
+}
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- 品牌字标：艺术字体 Financial Info（酸柠檬点缀） ---------- */
+.logo-word {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.34em;
+  font-family: "Space Grotesk", "Bahnschrift", "DIN Alternate", "Segoe UI",
+    system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+.logo-fin {
+  color: var(--foreground);
+  background: linear-gradient(
+    96deg,
+    var(--foreground) 0%,
+    color-mix(in srgb, var(--foreground) 58%, var(--primary)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.logo-info {
+  font-style: italic;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 14px rgba(228, 242, 34, 0.28);
+}
+.logo-mark {
+  font-family: "Space Grotesk", "Bahnschrift", "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  letter-spacing: -0.04em;
+  background: linear-gradient(
+    150deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 68%, #ffffff) 100%
+  );
+  box-shadow: 0 0 0 1px var(--border), 0 0 16px rgba(228, 242, 34, 0.18);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.logo-mark:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 20px rgba(228, 242, 34, 0.24);
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark {
+    transition: none;
+  }
+}

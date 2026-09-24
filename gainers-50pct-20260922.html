@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026年内涨幅超50% A股全景扫描</title>
+<style>
+  :root{
+    --bg:#08090a; --card:#0f1011; --card2:#16181b; --line:#23252a;
+    --fg:#e6e8ea; --muted:#9aa0a6; --dim:#6b7177;
+    --lime:#e4f222; --up:#eb5757; --down:#27a644;
+    --c1:#e4f222; --c2:#5bd6e0; --c3:#b78bff; --c4:#ff9f6e; --c5:#7ee787;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;padding:32px 20px 64px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .hero{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#101113,#0b0c0d);
+    padding:26px 28px;position:relative;overflow:hidden}
+  .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 10% -20%,rgba(228,242,34,.10),transparent 60%);pointer-events:none}
+  .tag{display:inline-block;font-size:12px;letter-spacing:.12em;color:var(--lime);border:1px solid rgba(228,242,34,.35);
+    padding:3px 10px;border-radius:999px;text-transform:uppercase}
+  h1{font-size:26px;font-weight:800;margin:12px 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .kpi .n{font-size:28px;font-weight:800;color:var(--lime);font-variant-numeric:tabular-nums}
+  .kpi .l{font-size:12px;color:var(--muted);margin-top:2px}
+  h2{font-size:18px;font-weight:700;margin:34px 0 14px;padding-left:12px;border-left:3px solid var(--lime)}
+  .note{font-size:12.5px;color:var(--dim);margin:6px 0 14px}
+  /* sector bars */
+  .sector{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .row{display:grid;grid-template-columns:96px 1fr 44px;align-items:center;gap:10px;margin:7px 0}
+  .row .nm{font-size:13px;color:var(--fg);text-align:right}
+  .bar{height:14px;background:var(--card2);border-radius:6px;overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#aebf12,var(--lime))}
+  .row .v{font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600}
+  .row.lead .nm{color:var(--lime);font-weight:700}
+  .row.lead .v{color:var(--lime)}
+  .donutwrap{display:flex;gap:24px;align-items:center;margin-top:18px;flex-wrap:wrap}
+  .donut{width:160px;height:160px;border-radius:50%;
+    background:conic-gradient(var(--lime) 0 31.4%, #2a2d33 31.4% 100%);position:relative;flex:0 0 auto}
+  .donut:after{content:"";position:absolute;inset:26px;background:var(--card);border-radius:50%}
+  .donut .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+  .donut .mid b{font-size:24px;color:var(--lime)}
+  .donut .mid s{font-size:11px;color:var(--muted);text-decoration:none}
+  .legend{font-size:13px;color:var(--muted)}
+  .legend div{margin:4px 0}
+  .legend b{color:var(--fg)}
+  /* category cards */
+  .cats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .cat{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:16px 18px}
+  .cat .h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .cat .h b{font-size:15px}
+  .cat .h span{font-size:11px;color:var(--dim);margin-left:auto}
+  .cat .why{font-size:12.5px;color:var(--muted);margin:6px 0 10px}
+  .cat ul{list-style:none}
+  .cat li{font-size:12.5px;padding:3px 0;border-top:1px solid rgba(35,37,42,.6)}
+  .cat li:first-child{border-top:none}
+  .code{color:var(--lime);font-variant-numeric:tabular-nums;font-weight:600}
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px;background:var(--card2)}
+  td.r{text-align:right;font-variant-numeric:tabular-nums}
+  .pct{color:var(--up);font-weight:700}
+  .tier{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+  .tier.a{color:var(--up);border-color:rgba(235,87,87,.4)}
+  tr:hover td{background:rgba(228,242,34,.04)}
+  .risk{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--up);border-radius:10px;padding:16px 18px}
+  .risk li{font-size:13px;margin:7px 0 7px 18px;color:var(--fg)}
+  .disc{margin-top:30px;font-size:12px;color:var(--dim);border-top:1px dashed var(--line);padding-top:16px;line-height:1.7}
+  .src{font-size:11.5px;color:var(--dim);margin-top:8px}
+  @media(max-width:720px){.kpis{grid-template-columns:repeat(2,1fr)}.cats{grid-template-columns:1fr}.row{grid-template-columns:80px 1fr 40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="hero">
+    <span class="tag">A股 2026 年内涨幅 &gt; 50% 全景扫描</span>
+    <h1>今年涨超 50% 的票，到底集中在哪？</h1>
+    <div class="sub">数据时点：2026-09-22 收盘 · 申万一级行业分类 · 含沪深北全市场 · 不含 ST/退市股单独统计</div>
+    <div class="kpis">
+      <div class="kpi"><div class="n">≈459</div><div class="l">年内涨幅&gt;50% 个股（只）</div></div>
+      <div class="kpi"><div class="n">144</div><div class="l">电子行业独占（占比 31%）</div></div>
+      <div class="kpi"><div class="n">&lt;10%</div><div class="l">占全市场 5500+ 只比重</div></div>
+      <div class="kpi"><div class="n">≈613</div><div class="l">年内曾翻倍（9-11 峰值口径）</div></div>
+    </div>
+  </section>
+
+  <h2>一、行业分布：电子一家独大，科技+资源双轮</h2>
+  <div class="note">口径：申万一级行业，2026-01-01 至 09-22 收盘价较年初涨幅 ≥50% 的个股数量（聚合统计，与个股明细口径存在个位数出入）。来源：同花顺 iFinD / Wind / 东方财富，经 agentic_search 聚合。</div>
+  <div class="sector">
+    <div class="row lead"><div class="nm">电子</div><div class="bar"><i style="width:100%"></i></div><div class="v">144</div></div>
+    <div class="row"><div class="nm">机械设备</div><div class="bar"><i style="width:42%"></i></div><div class="v">61</div></div>
+    <div class="row"><div class="nm">基础化工</div><div class="bar"><i style="width:26%"></i></div><div class="v">37</div></div>
+    <div class="row"><div class="nm">医药生物</div><div class="bar"><i style="width:24%"></i></div><div class="v">35</div></div>
+    <div class="row"><div class="nm">通信</div><div class="bar"><i style="width:15%"></i></div><div class="v">21</div></div>
+    <div class="row"><div class="nm">电力设备</div><div class="bar"><i style="width:14%"></i></div><div class="v">20</div></div>
+    <div class="row"><div class="nm">计算机</div><div class="bar"><i style="width:12%"></i></div><div class="v">17</div></div>
+    <div class="row"><div class="nm">轻工制造</div><div class="bar"><i style="width:9%"></i></div><div class="v">13</div></div>
+    <div class="row"><div class="nm">有色金属</div><div class="bar"><i style="width:8%"></i></div><div class="v">12</div></div>
+    <div class="row"><div class="nm">建筑装饰</div><div class="bar"><i style="width:8%"></i></div><div class="v">12</div></div>
+    <div class="row"><div class="nm">环保</div><div class="bar"><i style="width:7.6%"></i></div><div class="v">11</div></div>
+    <div class="row"><div class="nm">公用事业</div><div class="bar"><i style="width:7%"></i></div><div class="v">10</div></div>
+    <div class="row"><div class="nm">建筑材料</div><div class="bar"><i style="width:5.6%"></i></div><div class="v">8</div></div>
+    <div class="row"><div class="nm">家用电器</div><div class="bar"><i style="width:5.6%"></i></div><div class="v">8</div></div>
+    <div class="row"><div class="nm">商贸零售</div><div class="bar"><i style="width:4.2%"></i></div><div class="v">6</div></div>
+    <div class="row"><div class="nm">汽车/农林/地产/综合</div><div class="bar"><i style="width:3.5%"></i></div><div class="v">各5</div></div>
+    <div class="row"><div class="nm">交运/石化/煤炭/食饮/纺服/军工</div><div class="bar"><i style="width:2.8%"></i></div><div class="v">各3-4</div></div>
+    <div class="row"><div class="nm">社会服务/传媒/钢铁</div><div class="bar"><i style="width:1.4%"></i></div><div class="v">1-2</div></div>
+
+    <div class="donutwrap">
+      <div class="donut"><div class="mid"><b>31%</b><s>电子占比</s></div></div>
+      <div class="legend">
+        <div><b style="color:var(--lime)">电子 144 只</b> —— 绝对第一梯队，AI 硬件产业链（半导体/PCB/光模块/设备）的集中地</div>
+        <div><b>科技+高端制造+资源</b>合计约 300 只（电子+机械+化工+通信+电力设备+计算机+有色+建材），占比超六成</div>
+        <div><b style="color:var(--muted)">传统消费/周期几乎绝迹</b>：食品饮料仅 3-4、商贸零售 6、社会服务 2、传媒 1</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>二、为什么涨：五大主线归类</h2>
+  <div class="cats">
+    <div class="cat">
+      <div class="h"><span class="dot" style="background:var(--c1)"></span><b>主线一 · AI 算力硬件</b><span>最强主线</span></div>
+      <div class="why">「十五五」算力网新增直接投资约 4 万亿 + 企业 Capex 暴增（腾讯 Q2 资本开支 +176%、移动算力网投资 +71%）。AI 服务器 PCB 从 12 层拉到 78 层，单机 PCB 价值量 320→3100 美元（约 9 倍），重新定价了过去"不起眼但绕不开"的环节。</div>
+      <ul>
+        <li>半导体材料/电子特气：<span class="code">中船特气 688146</span> <span class="code">有研硅 688432</span> <span class="code">江丰电子 300666</span></li>
+        <li>存储芯片：<span class="code">普冉股份 688766</span> <span class="code">德明利 001309</span> <span class="code">兆易创新 603986</span></li>
+        <li>PCB/覆铜板/玻纤布：<span class="code">宏和科技 603256</span> <span class="code">金安国纪 002636</span> <span class="code">生益科技 600183</span></li>
+        <li>光模块/CPO/光纤：<span class="code">源杰科技 688498</span> <span class="code">长飞光纤 601869</span> <span class="code">亨通光电 600487</span></li>
+        <li>半导体设备：<span class="code">中微公司 688012</span> <span class="code">拓荆科技 688072</span></li>
+        <li>算力配套(液冷/结构件)：<span class="code">利通电子 603629</span> <span class="code">宏景科技 301396</span></li>
+      </ul>
+    </div>
+
+    <div class="cat">
+      <div class="h"><span class="dot" style="background:var(--c2)"></span><b>主线二 · 资源再定价</b><span>算力原材料</span></div>
+      <div class="why">逻辑锚点从地产基建切换为算力基建：服务器配电、散热、先进封装、高速光模块大量消耗铜/锡/铝。LME 锡价同比 +64%、铜 +40%、铝 +36%；上半年规上有色企业利润 +100%。从"地产周期品"重估为"算力基建原材料"。</div>
+      <ul>
+        <li>小金属/贵金属：<span class="code">云南锗业 002428</span> <span class="code">中钨高新 000657</span> <span class="code">章源钨业 002378</span> <span class="code">翔鹭钨业 002842</span></li>
+      </ul>
+    </div>
+
+    <div class="cat">
+      <div class="h"><span class="dot" style="background:var(--c4)"></span><b>主线三 · 周期反转与涨价</b><span>业绩修复</span></div>
+      <div class="why">覆铜板年内五轮密集调价、部分产品累计 +68%；原油大跌（9-21 主力一度 -7%）带来化工成本端利好，催生涨停潮。高股息电力 9 月阶段性修复。</div>
+      <ul>
+        <li>化工涨价：<span class="code">金丹科技 300829</span> <span class="code">宏昌电子 603002</span> <span class="code">江化微 603078</span></li>
+        <li>电力/高股息：<span class="code">华电辽能 600396</span> <span class="code">豫能控股 001896</span> <span class="code">华电能源 600726</span></li>
+      </ul>
+    </div>
+
+    <div class="cat">
+      <div class="h"><span class="dot" style="background:var(--c3)"></span><b>主线四 · 并购重组 / 跨界</b><span>叙事驱动</span></div>
+      <div class="why">部分翻倍股靠控制权变更、跨界并购切入 AI 赛道，需警惕"蹭概念"——法尔胜、通鼎互联已公告澄清与光纤/数据中心业务关联度极低。</div>
+      <ul>
+        <li>控制权变更/资产注入：<span class="code">民爆光电 301362</span>（拟收购厦芝精密切入 PCB 微钻针）</li>
+        <li>风险提示：<span class="code">法尔胜 000890</span> <span class="code">通鼎互联 002491</span> 已发澄清公告</li>
+      </ul>
+    </div>
+
+    <div class="cat" style="grid-column:1 / -1">
+      <div class="h"><span class="dot" style="background:var(--c5)"></span><b>主线五 · 主题轮动（9 月新增变量）</b><span>扩散中</span></div>
+      <div class="why">进入 9 月行情扩散：① 国家新闻出版署《出版业"十五五"规划》催化出版传媒（内蒙新华 5 连板）；② 9-21 医药生物大涨（EMA 积极意见 + 板块资金净流入 86 亿）；③ 9-22 隔夜美股 AMD +9.9%、英特尔 +12% 带动 AI 应用/CPU 概念（旋极信息 20cm 涨停）。</div>
+      <ul>
+        <li>出版传媒：<span class="code">内蒙新华 603230</span> <span class="code">新华文轩 601811</span></li>
+        <li>医药/AI 应用：<span class="code">诺禾致源 688315</span> <span class="code">旋极信息 300324</span> <span class="code">药明康德 603259</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>三、涨幅梯队（代表个股，2026-09-22）</h2>
+  <div class="note">梯队依据：年内收盘价较年初涨幅（ChgYtd）。来源：westock 筛选 + 同花顺 iFinD，2026-09-22。</div>
+  <table>
+    <thead><tr><th>代码 / 名称</th><th>行业</th><th class="r">年内涨幅</th><th>梯队</th></tr></thead>
+    <tbody>
+      <tr><td><span class="code">688808</span> 联讯仪器</td><td>电子（半导体测试）</td><td class="r pct">+2728%</td><td><span class="tier a">新股 &gt;500%</span></td></tr>
+      <tr><td><span class="code">603629</span> 利通电子</td><td>电子（算力结构件）</td><td class="r pct">+517%</td><td><span class="tier a">&gt;500%</span></td></tr>
+      <tr><td><span class="code">688146</span> 中船特气</td><td>电子（电子特气）</td><td class="r pct">+434%</td><td><span class="tier a">&gt;500% 区间</span></td></tr>
+      <tr><td><span class="code">002636</span> 金安国纪</td><td>电子（覆铜板）</td><td class="r pct">+416%</td><td><span class="tier a">&gt;500% 区间</span></td></tr>
+      <tr><td><span class="code">603256</span> 宏和科技</td><td>电子（玻纤布）</td><td class="r pct">+333%</td><td><span class="tier a">200-500%</span></td></tr>
+      <tr><td><span class="code">688498</span> 源杰科技</td><td>通信（光芯片）</td><td class="r pct">+296%</td><td><span class="tier a">200-500%</span></td></tr>
+      <tr><td><span class="code">601869</span> 长飞光纤</td><td>通信（光纤光缆）</td><td class="r pct">+293%</td><td><span class="tier a">200-500%</span></td></tr>
+      <tr><td><span class="code">000636</span> 风华高科</td><td>电子（MLCC）</td><td class="r pct">+257%</td><td><span class="tier a">200-500%</span></td></tr>
+      <tr><td><span class="code">002428</span> 云南锗业</td><td>有色（小金属）</td><td class="r pct">+198%</td><td><span class="tier a">200-500% 区间</span></td></tr>
+      <tr><td><span class="code">600183</span> 生益科技</td><td>电子（覆铜板龙头）</td><td class="r pct">+147%</td><td><span class="tier">50-200%</span></td></tr>
+      <tr><td><span class="code">603259</span> 药明康德</td><td>医药（CXO）</td><td class="r pct">+90%</td><td><span class="tier">50-200%</span></td></tr>
+      <tr><td><span class="code">688008</span> 澜起科技</td><td>电子（接口芯片）</td><td class="r pct">+89%</td><td><span class="tier">50-200%</span></td></tr>
+      <tr><td><span class="code">300308</span> 中际旭创</td><td>通信（光模块）</td><td class="r pct">+52%</td><td><span class="tier">50-200%</span></td></tr>
+    </tbody>
+  </table>
+  <div class="src">注：年内涨幅第一的联讯仪器为 4-23 上市新股（发行后暴涨）；剔除新股后传统牛股冠军为中船特气、宏和科技、金安国纪。完整 459 只清单由筛选工具导出，本表仅列代表性标的。</div>
+
+  <h2>四、风险提示</h2>
+  <div class="risk">
+    <ul>
+      <li><b>高位回撤剧烈</b>：截至 9-2，市值 500 亿以上权重股中 193 只较年内最高价回撤超 30%，其中千亿市值 81 只（中际旭创、寒武纪、中芯国际、海光信息在列），电子板块占 32.64%。</li>
+      <li><b>"曾翻倍"≠"现翻倍"</b>：9-11 沪深两市"曾翻倍"共 613 只，但收盘价口径仅 155 只（9-10）仍维持翻倍——大量个股已从高点大幅回落。</li>
+      <li><b>概念真伪需甄别</b>：法尔胜、通鼎互联等已公告澄清与光纤/数据中心业务实际关联度，避开仅蹭概念、无核心技术的标的。</li>
+      <li><b>估值已不便宜</b>：多只领涨股 PE(TTM) 达数百倍甚至为负（如迅捷兴 PE≈-1925、逸豪新材≈-485），业绩兑现能力成后续关键。</li>
+    </ul>
+  </div>
+
+  <div class="disc">
+    <b>数据说明</b>：个股行情与行业分布数据来自 2026-09-22 收盘口径；行业分类采用申万一级标准；总数量统计含沪深北全市场，与剔除科创板/北交所的细分口径存在差异（如仅主板+创业板口径 9-11 为 588 只），已在文中分别标注。来源：同花顺 iFinD、Wind、东方财富、腾讯财经、第一财经、新浪财经等公开数据，经 agentic_search 多源聚合，非一手来源、需核实原文。<br/><br/>
+    <b>免责声明</b>：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+  </div>
+
+</div>
+</body>
+</html>

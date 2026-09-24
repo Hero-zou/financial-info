@@ -1,0 +1,19 @@
+node_modules
+dist
+*.log
+.DS_Store
+
+# AI 工作区数据（记忆/日志，不属于项目源码）
+.workbuddy/
+
+# vite 会话级临时文件
+vite.config.ts.timestamp-*
+
+# 临时工具脚本（会话级：token 走命令行参数、不落盘）
+_gh_*.py
+_gh_*.js
+_tmp_*.html
+
+# 系统/编辑器杂项
+Thumbs.db
+_gh_*.cjs

@@ -1,0 +1,7 @@
+# SPA 路由 rewrite（沿用记溯方案：逐条 200，地址栏不变、内部换内容）
+# 静态文件（/assets/*、/data/*）存在时优先静态文件，不受影响
+/watchlist   /   200
+/watchlist/  /   200
+/tactic      /   200
+/tactic/     /   200
+/items/*     /   200
